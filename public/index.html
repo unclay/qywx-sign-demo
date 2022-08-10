@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>企业微信签名测试</title>
+</head>
+<body>
+  <p></p>
+  <button id="btn-text">发送文本</button>
+  <button id="btn-image">发送图片</button>
+  <script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.14.6/vconsole.min.js"></script>
+  <script>
+    new VConsole();
+  </script>
+  <!-- <script src="//res.wx.qq.com/open/js/jweixin-1.6.0.js"></script> -->
+  <script src="https://res.wx.qq.com/wwopen/js/jsapi/jweixin-1.0.0.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+  <script>
+    var corpid = '';
+    var agentid = 0;
+    var config = {};
+    $.ajax({
+      url: './sign/',
+      data: {
+        url: location.href.split('#')[0],
+      },
+      success: function(res) {
+        config = res;
+        sign();
+      }
+    })
+    
+
+    function sign() {
+      console.log(config)
+      wx.config({
+        beta: true,// 必须这么写，否则wx.invoke调用形式的jsapi会有问题
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: corpid, // 必填，企业微信的corpID
+        timestamp: config.corp.timestamp, // 必填，生成签名的时间戳
+        nonceStr: config.corp.noncestr, // 必填，生成签名的随机串
+        signature: config.corp.signature,// 必填，签名，见 附录-JS-SDK使用权限签名算法
+        jsApiList: ['getContext', 'getCurExternalContact', 'sendChatMessage', 'openEnterpriseChat'] // 必填，需要使用的JS接口列表，凡是要调用的接口都需要传进来
+      });
+      wx.ready(() => {
+        console.log('config success');
+        agentConfig();
+      });
+      wx.error((res) => {
+        console.log(res);
+      });
+    }
+    function agentConfig() {
+      wx.agentConfig({
+        debug: false,
+        corpid: corpid, // 必填，企业微信的corpid，必须与当前登录的企业一致
+        agentid: agentid, // 必填，企业微信的应用id （e.g. 1000247）
+        timestamp: config.app_2.timestamp, // 必填，生成签名的时间戳
+        nonceStr: config.app_2.noncestr, // 必填，生成签名的随机串
+        signature: config.app_2.signature,// 必填，签名，见附录1
+        jsApiList: ['getContext', 'getCurExternalContact', 'sendChatMessage', 'openEnterpriseChat'], //必填
+        success: (res) => {
+          console.log('agentConfig success');
+        },
+        fail: (res) => {
+          console.log(res);
+        }
+      });
+    }
+    function sendText() {
+      wx.invoke('sendChatMessage', {
+        msgtype: 'text', //消息类型，必填
+        text: {
+          content: 'asdfasfd', //图片的素材id
+        },
+      }, (res) => {
+        console.log(res);
+      });
+    }
+    function sendImage() {
+      wx.invoke('sendChatMessage', {
+        msgtype: 'image', //消息类型，必填
+        image: {
+          mediaid: '3Ifg65nZwotDhf5_uKyAaOVnApiB9E0Ll0mVbt5TAxOx_xfmUAiYQCE7j5SJYSXfG', //图片的素材id
+        },
+      }, (res) => {
+        console.log(res);
+      });
+      // 
+    }
+    document.querySelector('#btn-text').addEventListener('click', function() {
+      sendText();
+    }, false);
+    document.querySelector('#btn-image').addEventListener('click', function() {
+      sendImage();
+    }, false);
+  </script>
+</body>
+</html>
