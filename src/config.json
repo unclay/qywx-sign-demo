@@ -1,0 +1,10 @@
+{
+  "debug": false,
+  "corpid": "",
+  "app": [
+    {
+      "agentid": 0,
+      "secret": ""
+    }
+  ]
+}
